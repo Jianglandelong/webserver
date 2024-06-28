@@ -2,6 +2,7 @@
 
 #include "base/CurrentThread.h"
 
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -14,6 +15,8 @@ class Poller;
 
 class EventLoop {
 public:
+  // typedef std::function<void()> std::function<void()>;
+
   EventLoop();
 
   ~EventLoop();
@@ -22,15 +25,15 @@ public:
 
   void quit();
 
-  void run_in_loop(std::function<void> cb);
+  void run_in_loop(const std::function<void()> &cb);
 
-  void queue_in_loop(std::function<void> cb);
+  void queue_in_loop(const std::function<void()> &cb);
 
   bool is_in_loop_thread();
 
   void assert_in_loop_thread();
 
-  void update_channel();
+  void update_channel(Channel* channel);
 
   void remove_channel();
 
@@ -43,8 +46,8 @@ private:
   bool is_quit_{false};
   bool is_calling_pending_function_{false};
   const pid_t thread_id_;
-  std::vector<std::shared_ptr<Channel>> channel_list_;
-  std::vector<std::function<void>> function_list_;
+  std::vector<Channel*> active_channels_;
+  std::vector<std::function<void()>> function_list_;
   std::unique_ptr<Poller> poller_;
 };
 }

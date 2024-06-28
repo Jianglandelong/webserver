@@ -1,9 +1,12 @@
 #include "Channel.h"
+#include "EventLoop.h"
 
 namespace webserver
 {
 
-Channel::Channel(std::shared_ptr<EventLoop> loop, int fd) : loop_(loop), fd_(fd) {}
+Channel::Channel(EventLoop* loop, int fd) : loop_(loop), fd_(fd) {}
+
+Channel::~Channel() {}
 
 void Channel::handle_event() {
   if (revents_ & none_events_) {
@@ -29,6 +32,10 @@ void Channel::handle_event() {
 void Channel::enable_reading() {
   events_ = read_events_;
   update();
+}
+
+void Channel::update() {
+  loop_->update_channel(this);
 }
   
 }
