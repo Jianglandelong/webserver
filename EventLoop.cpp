@@ -1,6 +1,7 @@
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Poller.h"
+#include "TimerQueue.h"
 
 namespace webserver
 {
@@ -10,7 +11,8 @@ const int timeout = 1000;
 
 EventLoop::EventLoop() 
   : thread_id_(CurrentThread::tid()), 
-    poller_(std::make_unique<Poller>(this))
+    poller_(std::make_unique<Poller>(this)), 
+    timer_queue_(std::make_unique<TimerQueue>(this))
 {
   if (t_loop_in_this_thread) {
     // LOG << "Another EventLoop " << t_loopInThisThread << " exists in this
@@ -57,6 +59,20 @@ void EventLoop::update_channel(Channel* channel) {
   assert(channel->eventloop() == this);
   assert_in_loop_thread();
   poller_->update_channel(channel);
+}
+
+void EventLoop::run_at(const Timestamp &time, const Timer::TimerCallback &cb) {
+  timer_queue_->add_timer(time, cb);
+}
+
+void EventLoop::run_after(double delay, const Timer::TimerCallback &cb) {
+  Timestamp time(addTime(Timestamp::now(), delay));
+  run_at(time, cb);
+}
+
+void EventLoop::run_every_interval(double interval, const Timer::TimerCallback &cb) {
+  Timestamp time(addTime(Timestamp::now(), interval));
+  timer_queue_->add_timer(time, cb, interval);
 }
 
 }
