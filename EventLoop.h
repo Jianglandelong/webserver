@@ -39,10 +39,11 @@ private:
   void handle_read();
   void run_pending_functions();
 
-  bool is_looping_{false};
-  bool is_quit_{false};
-  bool is_calling_pending_function_{false};
-  const pid_t thread_id_;
+  bool is_looping_;
+  bool is_quit_;
+  bool is_calling_pending_function_;
+  // const pid_t thread_id_;
+  pid_t thread_id_;
   std::vector<Channel*> active_channels_;
   std::vector<std::function<void()>> function_list_;
   std::unique_ptr<Poller> poller_;

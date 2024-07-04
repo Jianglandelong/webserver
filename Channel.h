@@ -41,7 +41,8 @@ private:
   void update();
 
   static const int none_events_{0};
-  static const int read_events_{POLLIN | POLLPRI | POLLRDHUP};
+  // static const int read_events_{POLLIN | POLLPRI | POLLRDHUP};
+  static const int read_events_{POLLIN | POLLPRI};
   static const int write_events_{POLLOUT};
 
   int fd_;

@@ -1,5 +1,7 @@
+#include <cstring>
 #include <sys/timerfd.h>
 
+#include "Logging.h"
 #include "TimerQueue.h"
 
 namespace webserver
@@ -12,6 +14,7 @@ int create_timerfd()
   if (timerfd < 0)
   {
     // LOG_SYSFATAL << "Failed in timerfd_create";
+    LOG << "Failed in timerfd_create\n";
   }
   return timerfd;
 }
@@ -21,9 +24,11 @@ void read_timerfd(int timerfd, Timestamp now)
   uint64_t howmany;
   ssize_t n = ::read(timerfd, &howmany, sizeof(howmany));
   // LOG_TRACE << "TimerQueue::handleRead() " << howmany << " at " << now.toString();
+  LOG << "TimerQueue::handleRead() " << howmany << " at " << now.toString() << "\n";
   if (n != sizeof(howmany))
   {
     // LOG_ERROR << "TimerQueue::handleRead() reads " << n << " bytes instead of 8";
+    LOG << "TimerQueue::handleRead() reads " << n << " bytes instead of 8\n";
   }
 }
 
@@ -44,7 +49,7 @@ struct timespec howMuchTimeFromNow(Timestamp when)
 }
 
 TimerQueue::TimerQueue(EventLoop *loop)
-  : loop_(loop), timer_queue_fd_(create_timerfd()), timer_queue_channel_(loop_, timer_queue_fd_)
+  : loop_(loop), timer_queue_fd_(create_timerfd()), timer_queue_channel_(loop, timer_queue_fd_)
 {
   timer_queue_channel_.set_read_callback([this] () { this->handle_read(); } );
   timer_queue_channel_.enable_reading();
@@ -76,13 +81,25 @@ void TimerQueue::get_expired(Timestamp now) {
 }
 
 void TimerQueue::reset_expired(Timestamp now) {
+  std::vector<std::shared_ptr<Timer>> tmp_timer_list;
   for (auto &timer : expired_) {
     if (timer->is_repeat()) {
       timer->restart(now);
-      insert(timer);
+      tmp_timer_list.push_back(timer);
     }
   }
+  for (auto &timer: tmp_timer_list) {
+    insert(timer);
+  }
   expired_.clear();
+  if (!timer_list_.empty()) {
+    auto next_expire = timer_list_.begin()->second->expiration();
+    if (next_expire.valid()) {
+      update_timer_queue_fd();
+    }
+  } else {
+    LOG << "no timer left\n";
+  }
 }
 
 bool TimerQueue::insert(std::shared_ptr<Timer> timer) {
@@ -108,12 +125,15 @@ void TimerQueue::update_timer_queue_fd()
   // wake up loop by timerfd_settime()
   struct itimerspec newValue;
   struct itimerspec oldValue;
+  memset(&newValue, 0, sizeof(newValue));
+  memset(&oldValue, 0, sizeof(oldValue));
   auto expiration = timer_list_.begin()->first;
   newValue.it_value = howMuchTimeFromNow(expiration);
   int ret = ::timerfd_settime(timer_queue_fd_, 0, &newValue, &oldValue);
   if (ret)
   {
     // LOG_SYSERR << "timerfd_settime()";
+    std::cerr << "timerfd_settime() error: " << std::strerror(errno) << std::endl;
   }
 }
 

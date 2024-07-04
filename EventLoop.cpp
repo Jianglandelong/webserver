@@ -1,3 +1,4 @@
+#include "Logging.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Poller.h"
@@ -7,16 +8,18 @@ namespace webserver
 {
 
 __thread EventLoop* t_loop_in_this_thread = nullptr;
-const int timeout = 1000;
+const int timeout = 10000;
 
 EventLoop::EventLoop() 
-  : thread_id_(CurrentThread::tid()), 
+  : is_looping_(false),
+    is_quit_(false),
+    is_calling_pending_function_(false),
+    thread_id_(CurrentThread::tid()), 
     poller_(std::make_unique<Poller>(this)), 
     timer_queue_(std::make_unique<TimerQueue>(this))
 {
-  if (t_loop_in_this_thread) {
-    // LOG << "Another EventLoop " << t_loopInThisThread << " exists in this
-    // thread " << threadId_;
+  if (t_loop_in_this_thread != nullptr) {
+    LOG << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_ << "\n";
   } else {
     t_loop_in_this_thread = this;
   }
@@ -47,6 +50,7 @@ void EventLoop::loop() {
     }
   }
   // LOG_TRACE << "EventLoop " << this << " stop looping";
+  LOG << "EventLoop " << this << " stop looping\n";
   is_looping_ = false;
 }
 

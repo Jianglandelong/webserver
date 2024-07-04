@@ -13,6 +13,9 @@ foreach(TEST ${TEST_DIR})
     string(REPLACE "./test/" "" TEST_NAME ${TEST})
     string(REPLACE ".cpp" "" TEST_NAME ${TEST_NAME})
     add_executable(${TEST_NAME} ${TEST} ${ROOT_DIR} ${BASE_DIR})
+    set_target_properties(${TEST_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
+    )
 endforeach()
 
 # add_executable(main ${ROOT_DIR} ${BASE_DIR})

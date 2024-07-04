@@ -13,7 +13,7 @@ public:
 
   Timer() : interval_(0.0) {}
   Timer(Timestamp expiration, TimerCallback cb, double interval = 0.0)
-    : expiration_(expiration), cb_(cb), interval_(interval), is_repeat_(interval_ > 0)
+    : expiration_(expiration), cb_(cb), interval_(interval), is_repeat_(interval > 0)
   {}
 
   void callback() { cb_(); }

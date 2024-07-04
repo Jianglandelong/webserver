@@ -1,3 +1,4 @@
+#include "Logging.h"
 #include "Channel.h"
 #include "EventLoop.h"
 
@@ -11,6 +12,7 @@ Channel::~Channel() {}
 void Channel::handle_event() {
   if (revents_ & none_events_) {
     // LOGWARN << "Channel::handle_event() POLLNVAL";
+    LOG << "Channel::handle_event() POLLNVAL\n";
   }
   if (revents_ & (POLLERR | POLLNVAL)) {
     if (error_callback_) {
