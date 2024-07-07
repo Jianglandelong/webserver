@@ -22,6 +22,7 @@ public:
   void reset_expired(Timestamp now);
   bool insert(std::shared_ptr<Timer> timer);
   void add_timer(Timestamp expiration, TimerCallback cb, double interval = 0.0);
+  void add_timer_in_loop(std::shared_ptr<Timer> timer);
   void update_timer_queue_fd();
 
 private:

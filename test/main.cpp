@@ -1,32 +1,24 @@
-#include "Channel.h"
 #include "EventLoop.h"
 
-#include <cstdio>
-#include <sys/timerfd.h>
+#include <iostream>
+#include <thread>
 
-webserver::EventLoop* g_loop;
+using namespace webserver;
 
-void timeout() {
-  printf("Timeout\n");
-  g_loop->quit();
+EventLoop* g_loop;
+
+void print() {
+  std::cout << "print\n";
+}
+
+void thread_func() {
+  g_loop->run_after(2, print);
 }
 
 int main() {
-  webserver::EventLoop loop;
+  EventLoop loop;
   g_loop = &loop;
-
-  int timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-  webserver::Channel channel(&loop, timer_fd);
-  channel.set_read_callback(timeout);
-  channel.enable_reading();
-
-  struct itimerspec howlong;
-  // bzero(&howlong, sizeof(howlong));
-  howlong.it_value.tv_sec = 5;
-  ::timerfd_settime(timer_fd, 0, &howlong, nullptr);
-
+  auto trd = std::thread(thread_func);
   loop.loop();
-  close(timer_fd);
-  
   return 0;
 }

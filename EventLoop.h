@@ -6,7 +6,9 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 namespace webserver
@@ -37,6 +39,7 @@ public:
 
 private:
   void handle_read();
+  void wakeup();
   void run_pending_functions();
 
   bool is_looping_;
@@ -44,9 +47,12 @@ private:
   bool is_calling_pending_function_;
   // const pid_t thread_id_;
   pid_t thread_id_;
+  int wakeup_fd_;
+  std::shared_ptr<Channel> wakeup_channel_;
   std::vector<Channel*> active_channels_;
   std::vector<std::function<void()>> function_list_;
   std::unique_ptr<Poller> poller_;
   std::unique_ptr<TimerQueue> timer_queue_;
+  std::mutex mutex_;
 };
 }

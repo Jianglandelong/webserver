@@ -1,4 +1,3 @@
-#include <cstring>
 #include <sys/timerfd.h>
 
 #include "Logging.h"
@@ -112,8 +111,12 @@ bool TimerQueue::insert(std::shared_ptr<Timer> timer) {
 }
 
 void TimerQueue::add_timer(Timestamp expiration, TimerCallback cb, double interval) {
-  loop_->assert_in_loop_thread();
   auto timer = std::make_shared<Timer>(expiration, cb, interval);
+  loop_->run_in_loop([this, timer]() { this->add_timer_in_loop(timer); });
+}
+
+void TimerQueue::add_timer_in_loop(std::shared_ptr<Timer> timer) {
+  loop_->assert_in_loop_thread();
   auto earliest_changed = insert(timer);
   if (earliest_changed) {
     update_timer_queue_fd();
