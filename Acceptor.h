@@ -1,3 +1,6 @@
+#pragma once
+
+#include "Callbacks.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Logging.h"
@@ -8,12 +11,11 @@ namespace webserver
 
 class Acceptor {
 public:
-  typedef std::function<void(int connfd, const InetAddress &peer_addr)> ConnectionCallback;
-
   Acceptor(EventLoop *loop, InetAddress *addr);
   void listen();
   void handle_read();
-  void set_connection_callback(const ConnectionCallback &cb) { connection_callback_ = cb; }
+  void set_connection_callback(const NewConnectionCallback &cb) { connection_callback_ = cb; }
+  bool is_listening() { return is_listening_; }
   static void default_connection_callback(int connfd, const InetAddress &peer_addr);
 
 private:
@@ -21,7 +23,7 @@ private:
   EventLoop *loop_;
   Socket socket_;
   Channel channel_;
-  ConnectionCallback connection_callback_;
+  NewConnectionCallback connection_callback_;
 };
   
 }

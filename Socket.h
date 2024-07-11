@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Logging.h"
 
 #include <arpa/inet.h>
