@@ -7,16 +7,24 @@ namespace webserver
 
 Channel::Channel(EventLoop* loop, int fd) : loop_(loop), fd_(fd) {}
 
-Channel::~Channel() {}
+Channel::~Channel() {
+  assert(!handling_event_);
+}
 
 void Channel::handle_event() {
+  handling_event_ = true;
   if (revents_ & none_events_) {
-    // LOGWARN << "Channel::handle_event() POLLNVAL";
-    LOG << "Channel::handle_event() POLLNVAL\n";
+    LOG_WARN << "Channel::handle_event() POLLNVAL\n";
   }
   if (revents_ & (POLLERR | POLLNVAL)) {
     if (error_callback_) {
       error_callback_();
+    }
+  }
+  if ((revents_ & POLLHUP) && !(revents_ & POLLIN)) {
+    LOG_WARN << "Channel::handle_event() POLLHUP\n";
+    if (close_callback_) {
+      close_callback_();
     }
   }
   if (revents_ & read_events_) {
@@ -29,6 +37,7 @@ void Channel::handle_event() {
       write_callback_();
     }
   }
+  handling_event_ = false;
 }
 
 void Channel::enable_reading() {
@@ -38,6 +47,11 @@ void Channel::enable_reading() {
 
 void Channel::update() {
   loop_->update_channel(this);
+}
+  
+void Channel::disable_events() {
+  events_ = none_events_;
+  update();
 }
   
 }

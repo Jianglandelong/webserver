@@ -118,6 +118,12 @@ void EventLoop::queue_in_loop(const std::function<void()> &cb) {
   }
 }
 
+void EventLoop::remove_channel(Channel *channel) {
+  assert(channel->eventloop() == this);
+  assert_in_loop_thread();
+  poller_->remove_channel(channel);
+}
+
 void EventLoop::handle_read() {
   uint64_t one;
   auto num = ::read(wakeup_fd_, &one, sizeof(one));

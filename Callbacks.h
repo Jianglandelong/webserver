@@ -12,5 +12,6 @@ class TcpConnection;
 typedef std::function<void(int connfd, const InetAddress &peer_addr)> NewConnectionCallback;
 typedef std::function<void(const std::shared_ptr<TcpConnection> &)> ConnectionCallback;
 typedef std::function<void(const std::shared_ptr<TcpConnection> &, const char* data, ssize_t len)> MessageCallback;
+typedef std::function<void(const std::shared_ptr<TcpConnection> &)> CloseCallback;
   
 }

@@ -19,7 +19,8 @@ public:
   
   void poll(std::vector<Channel*> &active_channels, int timeout = -1);
   void fill_active_channels(int num_revents, std::vector<Channel*> &active_channels);
-  void update_channel(Channel* new_channel);
+  void update_channel(Channel *new_channel);
+  void remove_channel(Channel *channel);
   void assert_in_loop_thread() { loop_->assert_in_loop_thread(); }
 
 private:

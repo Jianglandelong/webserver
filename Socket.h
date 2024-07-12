@@ -36,6 +36,16 @@ public:
   void listen();
   int accept(InetAddress *peer_addr);
   void set_reuse_addr(bool flag);
+  
+  static int get_socket_error(int sockfd) {
+    int optval;
+    socklen_t optlen = sizeof(optval);
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
+      return errno;
+    } else {
+      return optval;
+    }
+  }
 
 private:
   int socket_;

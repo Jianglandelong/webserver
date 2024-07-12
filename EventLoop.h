@@ -35,7 +35,7 @@ public:
   void run_every_interval(double interval, const Timer::TimerCallback &cb);
   void run_in_loop(const std::function<void()> &cb);
   void queue_in_loop(const std::function<void()> &cb);
-  void remove_channel();
+  void remove_channel(Channel *channel);
 
 private:
   void handle_read();

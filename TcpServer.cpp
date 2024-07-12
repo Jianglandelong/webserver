@@ -30,7 +30,15 @@ void TcpServer::new_connection_callback(int connfd, const InetAddress &peer_addr
   connection_map_[name.str()] = connection;
   connection->set_connection_callback(connection_cb_);
   connection->set_message_callback(message_cb_);
-  connection->connection_established();
+  connection->set_close_callback([this](const std::shared_ptr<TcpConnection> &conn) { this->remove_connection(conn); });
+  connection->initialize_connection();
+}
+
+void TcpServer::remove_connection(const std::shared_ptr<TcpConnection> &connection) {
+  loop_->assert_in_loop_thread();
+  LOG_INFO << "TcpServer::removeConnection: " << connection->name() << std::endl;
+  connection_map_.erase(connection->name());
+  loop_->queue_in_loop([connection]() { connection->destroy_connection(); });
 }
 
 }

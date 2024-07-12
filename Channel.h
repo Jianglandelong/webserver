@@ -23,6 +23,7 @@ public:
   void set_read_callback(const std::function<void()> &cb) { read_callback_ = cb; }
   void set_write_callback(const std::function<void()> &cb) { write_callback_ = cb; }
   void set_error_callback(const std::function<void()> &cb) { error_callback_ = cb; }
+  void set_close_callback(const std::function<void()> &cb) { close_callback_ = cb; }
 
   int fd() { return fd_; }
   int events() { return events_; }
@@ -33,6 +34,7 @@ public:
 
   void enable_reading();
   void enable_writing();
+  void disable_events();
 
   EventLoop* eventloop() { return loop_; }
 
@@ -50,9 +52,11 @@ private:
   int revents_;
   int index_in_pollfds_{-1};
   EventLoop* loop_;
+  bool handling_event_{false};
   std::function<void()> read_callback_;
   std::function<void()> write_callback_;
   std::function<void()> error_callback_;
+  std::function<void()> close_callback_;
 };
   
 }

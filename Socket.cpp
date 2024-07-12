@@ -93,5 +93,5 @@ void Socket::set_reuse_addr(bool flag) {
   int optval = flag ? 1 : 0;
   setsockopt(fd(), SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 }
-  
+
 }

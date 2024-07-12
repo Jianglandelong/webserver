@@ -20,11 +20,15 @@ public:
   const InetAddress& peer_addr() { return peer_addr_; }
   void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; }
   void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
-  void connection_established();
+  void set_close_callback(const CloseCallback &cb) { close_cb_ = cb; }
+  void initialize_connection();
+  void destroy_connection();
 
 private:
-  enum State {connecting, connected};
-  void handle_read();
+  enum State {connecting, connected, disconnected};
+  void handle_event();
+  void handle_close();
+  void handle_error();
 
   EventLoop *loop_;
   std::unique_ptr<Socket> socket_;
@@ -35,6 +39,7 @@ private:
   std::string name_;
   ConnectionCallback connection_cb_;
   MessageCallback message_cb_;
+  CloseCallback close_cb_;
 };
   
 }

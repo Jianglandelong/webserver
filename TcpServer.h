@@ -22,6 +22,8 @@ public:
   void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
 
 private:
+  void remove_connection(const std::shared_ptr<TcpConnection> &connection);
+
   bool is_start_{false};
   int next_connection_id_{1};
   EventLoop* loop_;

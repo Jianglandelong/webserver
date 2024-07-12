@@ -3,6 +3,8 @@
 #include "EventLoop.h"
 #include "Poller.h"
 
+#include <algorithm>
+
 namespace webserver
 {
 
@@ -56,12 +58,35 @@ void Poller::update_channel(Channel* new_channel) {
     assert(iter != channel_map_.end());
     assert(new_channel->index_in_pollfds() < poll_fds_.size());
     auto &pfd = poll_fds_[new_channel->index_in_pollfds()];
-    assert(pfd.fd == new_channel->fd() || pfd.fd == -1);  // -1 means the fd is ignored
+    assert(pfd.fd == new_channel->fd() || pfd.fd == -new_channel->fd() - 1);  // -1 means the fd is ignored
     pfd.events = new_channel->events();
     pfd.revents = 0;
     if (new_channel->is_none_event()) {
-      pfd.fd = -1;
+      pfd.fd = -new_channel->fd() - 1;
     }
+  }
+}
+
+void Poller::remove_channel(Channel *channel) {
+  assert_in_loop_thread();
+  // LOG_TRACE << "fd = " << channel->fd();
+  auto iter = channel_map_.find(channel->fd());
+  auto removed_index = channel->index_in_pollfds();
+  assert(iter != channel_map_.end());
+  assert(iter->second == channel);
+  assert(channel->is_none_event());
+  assert(0 <= removed_index && removed_index < poll_fds_.size());
+  channel_map_.erase(iter);
+  if (removed_index == poll_fds_.size() - 1) {
+    poll_fds_.pop_back();
+  } else { // swap the removed pollfd with the last pollfd in poll_fds_, then pop back
+    auto swap_fd = poll_fds_.back().fd;
+    if (swap_fd < 0) {
+      swap_fd = -swap_fd - 1;
+    }
+    std::swap(poll_fds_[removed_index], poll_fds_.back());
+    poll_fds_.pop_back();
+    channel_map_[swap_fd]->set_index(removed_index);
   }
 }
 
