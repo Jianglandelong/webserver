@@ -53,6 +53,7 @@ private:
   std::vector<std::function<void()>> function_list_;
   std::unique_ptr<Poller> poller_;
   std::unique_ptr<TimerQueue> timer_queue_;
+  Timestamp poll_return_time_;
   std::mutex mutex_;
 };
 }

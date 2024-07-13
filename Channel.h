@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Timer.h"
+
 #include <cassert>
 #include <functional>
 #include <poll.h>
@@ -12,15 +14,15 @@ class EventLoop;
 
 class Channel {
 public:
-  // typedef std::function<void()> std::function<void()>;
+  typedef std::function<void(Timestamp)> ReadEventCallback;
 
   Channel(EventLoop* loop, int fd);
 
   ~Channel();
 
-  void handle_event();
+  void handle_event(Timestamp receive_time);
 
-  void set_read_callback(const std::function<void()> &cb) { read_callback_ = cb; }
+  void set_read_callback(const ReadEventCallback &cb) { read_callback_ = cb; }
   void set_write_callback(const std::function<void()> &cb) { write_callback_ = cb; }
   void set_error_callback(const std::function<void()> &cb) { error_callback_ = cb; }
   void set_close_callback(const std::function<void()> &cb) { close_callback_ = cb; }
@@ -53,7 +55,7 @@ private:
   int index_in_pollfds_{-1};
   EventLoop* loop_;
   bool handling_event_{false};
-  std::function<void()> read_callback_;
+  ReadEventCallback read_callback_;
   std::function<void()> write_callback_;
   std::function<void()> error_callback_;
   std::function<void()> close_callback_;

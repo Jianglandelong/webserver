@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Buffer.h"
 #include "Callbacks.h"
 #include "Channel.h"
 #include "EventLoop.h"
@@ -26,7 +27,7 @@ public:
 
 private:
   enum State {connecting, connected, disconnected};
-  void handle_event();
+  void handle_event(Timestamp receive_time);
   void handle_close();
   void handle_error();
 
@@ -37,6 +38,7 @@ private:
   InetAddress server_addr_;
   InetAddress peer_addr_;
   std::string name_;
+  Buffer input_buffer_;
   ConnectionCallback connection_cb_;
   MessageCallback message_cb_;
   CloseCallback close_cb_;

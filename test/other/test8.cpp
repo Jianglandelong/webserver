@@ -16,13 +16,8 @@ void onConnection(const std::shared_ptr<TcpConnection>& conn) {
   }
 }
 
-void onMessage(const std::shared_ptr<TcpConnection>& conn, Buffer *buf, Timestamp receive_time) {
-  printf("onMessage(): received %zd bytes from connection [%s] at %s\n",
-         buf->readableBytes(),
-         conn->name().c_str(),
-         receive_time.toFormattedString().c_str());
-
-  printf("onMessage(): [%s]\n", buf->retrieveAsString().c_str());
+void onMessage(const std::shared_ptr<TcpConnection>& conn, const char* data, ssize_t len) {
+  std::cout << "onMessage(): received " << len << " bytes from connection " << conn->name() << std::endl;
 }
 
 int main() {

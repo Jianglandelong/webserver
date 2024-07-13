@@ -12,8 +12,9 @@ Poller::Poller(EventLoop* loop) : loop_(loop) {}
 
 Poller::~Poller() {}
 
-void Poller::poll(std::vector<Channel*> &active_channels, int timeout) {
+Timestamp Poller::poll(std::vector<Channel*> &active_channels, int timeout) {
   int num_revents = ::poll(poll_fds_.data(), poll_fds_.size(), timeout);
+  auto now = Timestamp::now();
   if (num_revents > 0) {
     // LOG_TRACE << num_revents << " events happen";
     LOG << num_revents << " events happen\n";
@@ -25,6 +26,7 @@ void Poller::poll(std::vector<Channel*> &active_channels, int timeout) {
     // LOG_SYSERR << "Poller:poll()";
     LOG << "Poller:poll()\n";
   }
+  return now;
 }
 
 void Poller::fill_active_channels(int num_revents, std::vector<Channel*> &active_channels) {

@@ -50,7 +50,7 @@ struct timespec howMuchTimeFromNow(Timestamp when)
 TimerQueue::TimerQueue(EventLoop *loop)
   : loop_(loop), timer_queue_fd_(create_timerfd()), timer_queue_channel_(loop, timer_queue_fd_)
 {
-  timer_queue_channel_.set_read_callback([this] () { this->handle_read(); } );
+  timer_queue_channel_.set_read_callback([this](Timestamp receive_time) { this->handle_read(); } );
   timer_queue_channel_.enable_reading();
 }
 

@@ -39,7 +39,7 @@ EventLoop::EventLoop()
     t_loop_in_this_thread = this;
   }
   wakeup_channel_ = std::make_shared<Channel>(this, wakeup_fd_);
-  wakeup_channel_->set_read_callback([this]() { this->handle_read(); });
+  wakeup_channel_->set_read_callback([this](Timestamp receive_time) { this->handle_read(); });
   wakeup_channel_->enable_reading();
 }
 
@@ -62,9 +62,9 @@ void EventLoop::loop() {
   is_looping_ = true;
   while (!is_quit_) {
     active_channels_.clear();
-    poller_->poll(active_channels_, timeout);
+    poll_return_time_ = poller_->poll(active_channels_, timeout);
     for (auto &channel : active_channels_) {
-      channel->handle_event();
+      channel->handle_event(poll_return_time_);
     }
     run_pending_functions();
   }

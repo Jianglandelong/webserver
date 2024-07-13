@@ -11,7 +11,7 @@ Channel::~Channel() {
   assert(!handling_event_);
 }
 
-void Channel::handle_event() {
+void Channel::handle_event(Timestamp receive_time) {
   handling_event_ = true;
   if (revents_ & none_events_) {
     LOG_WARN << "Channel::handle_event() POLLNVAL\n";
@@ -29,7 +29,7 @@ void Channel::handle_event() {
   }
   if (revents_ & read_events_) {
     if (read_callback_) {
-      read_callback_();
+      read_callback_(receive_time);
     }
   }
   if (revents_ & write_events_) {

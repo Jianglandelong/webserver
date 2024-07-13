@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Timer.h"
+
 #include <unordered_map>
 #include <poll.h>
 #include <signal.h>
@@ -17,7 +19,7 @@ public:
   Poller(EventLoop* loop);
   ~Poller();
   
-  void poll(std::vector<Channel*> &active_channels, int timeout = -1);
+  Timestamp poll(std::vector<Channel*> &active_channels, int timeout = -1);
   void fill_active_channels(int num_revents, std::vector<Channel*> &active_channels);
   void update_channel(Channel *new_channel);
   void remove_channel(Channel *channel);

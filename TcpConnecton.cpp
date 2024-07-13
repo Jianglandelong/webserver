@@ -8,7 +8,7 @@ TcpConnection::TcpConnection(EventLoop *loop, int connfd, const std::string &nam
   loop_(loop), socket_(std::make_unique<Socket>(connfd)), name_(name),
   channel_(std::make_unique<Channel>(loop, connfd)), server_addr_(server_addr), peer_addr_(peer_addr)
 {
-  channel_->set_read_callback([this]() {this->handle_event(); });
+  channel_->set_read_callback([this](Timestamp time) {this->handle_event(time); });
 }
   
 void TcpConnection::initialize_connection() {
@@ -28,14 +28,15 @@ void TcpConnection::destroy_connection() {
   loop_->remove_channel(channel_.get());
 }
 
-void TcpConnection::handle_event() {
-  char buf[BUFSIZ];
-  auto n = ::read(socket_->fd(), buf, sizeof(buf));
+void TcpConnection::handle_event(Timestamp receive_time) {
+  int tmp_errno = 0;
+  auto n = input_buffer_.readFd(channel_->fd(), &tmp_errno);
   if (n > 0) {
-    message_cb_(shared_from_this(), buf, n);
+    message_cb_(shared_from_this(), &input_buffer_, receive_time);
   } else if (n == 0) {
     handle_close();
   } else {
+    errno = tmp_errno;
     handle_error();
   }
 }

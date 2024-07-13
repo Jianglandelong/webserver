@@ -9,7 +9,7 @@ Acceptor::Acceptor(EventLoop *loop, InetAddress *addr) :
 {
   socket_.set_reuse_addr(true);
   socket_.bind(addr);
-  channel_.set_read_callback([this]() { this->handle_read(); });
+  channel_.set_read_callback([this](Timestamp time) { this->handle_read(); });
 }
 
 void Acceptor::listen() {
