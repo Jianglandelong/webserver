@@ -36,6 +36,7 @@ public:
   void listen();
   int accept(InetAddress *peer_addr);
   void set_reuse_addr(bool flag);
+  void shutdown_write();
   
   static int get_socket_error(int sockfd) {
     int optval;

@@ -33,10 +33,12 @@ public:
   void set_index(int index) { index_in_pollfds_ = index; }
   void set_revents(int revents) { revents_ = revents; }
   bool is_none_event() { return events_ == none_events_; }
+  bool is_writing();
 
   void enable_reading();
   void enable_writing();
   void disable_events();
+  void disable_writing();
 
   EventLoop* eventloop() { return loop_; }
 

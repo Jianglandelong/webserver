@@ -94,4 +94,10 @@ void Socket::set_reuse_addr(bool flag) {
   setsockopt(fd(), SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 }
 
+void Socket::shutdown_write() {
+  if (::shutdown(socket_, SHUT_WR) < 0) {
+    LOG_SYSERR << "Socket::shutdown_write()" << std::endl;
+  }
+}
+
 }

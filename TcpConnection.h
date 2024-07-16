@@ -24,12 +24,17 @@ public:
   void set_close_callback(const CloseCallback &cb) { close_cb_ = cb; }
   void initialize_connection();
   void destroy_connection();
+  void send(const std::string &message);
+  void shutdown();
 
 private:
-  enum State {connecting, connected, disconnected};
-  void handle_event(Timestamp receive_time);
+  enum State {connecting, connected, disconnecting, disconnected};
+  void handle_read(Timestamp receive_time);
   void handle_close();
   void handle_error();
+  void handle_write();
+  void send_in_loop(const std::string &message);
+  void shutdown_in_loop();
 
   EventLoop *loop_;
   std::unique_ptr<Socket> socket_;
@@ -39,6 +44,7 @@ private:
   InetAddress peer_addr_;
   std::string name_;
   Buffer input_buffer_;
+  Buffer output_buffer_;
   ConnectionCallback connection_cb_;
   MessageCallback message_cb_;
   CloseCallback close_cb_;

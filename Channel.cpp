@@ -53,5 +53,19 @@ void Channel::disable_events() {
   events_ = none_events_;
   update();
 }
+
+bool Channel::is_writing() {
+  return events_ & write_events_;
+}
+
+void Channel::enable_writing() {
+  events_ |= write_events_;
+  update();
+}
+
+void Channel::disable_writing() {
+  events_ &= ~write_events_;
+  update();
+}
   
 }
