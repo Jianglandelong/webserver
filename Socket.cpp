@@ -100,4 +100,9 @@ void Socket::shutdown_write() {
   }
 }
 
+void Socket::set_no_delay(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd(), IPPROTO_TCP, TCP_NODELAY, &optval, sizeof (optval));
+}
+
 }

@@ -31,6 +31,7 @@ void TcpServer::new_connection_callback(int connfd, const InetAddress &peer_addr
   connection->set_connection_callback(connection_cb_);
   connection->set_message_callback(message_cb_);
   connection->set_close_callback([this](const std::shared_ptr<TcpConnection> &conn) { this->remove_connection(conn); });
+  connection->set_write_complete_callback(write_complete_cb_);
   connection->initialize_connection();
 }
 

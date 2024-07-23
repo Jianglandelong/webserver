@@ -16,5 +16,6 @@ typedef std::function<void(int connfd, const InetAddress &peer_addr)> NewConnect
 typedef std::function<void(const std::shared_ptr<TcpConnection> &)> ConnectionCallback;
 typedef std::function<void(const std::shared_ptr<TcpConnection> &, Buffer *buf, Timestamp time)> MessageCallback;
 typedef std::function<void(const std::shared_ptr<TcpConnection> &)> CloseCallback;
+typedef std::function<void(const std::shared_ptr<TcpConnection> &)> WriteCompleteCallback;
   
 }

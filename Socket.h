@@ -4,6 +4,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sstream>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -37,6 +38,7 @@ public:
   int accept(InetAddress *peer_addr);
   void set_reuse_addr(bool flag);
   void shutdown_write();
+  void set_no_delay(bool on);
   
   static int get_socket_error(int sockfd) {
     int optval;

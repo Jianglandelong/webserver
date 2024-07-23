@@ -7,6 +7,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <signal.h>
 #include <thread>
 #include <unistd.h>
 #include <vector>
@@ -36,6 +37,7 @@ public:
   void run_in_loop(const std::function<void()> &cb);
   void queue_in_loop(const std::function<void()> &cb);
   void remove_channel(Channel *channel);
+  bool is_calling_pending_functions() { return is_calling_pending_function_; }
 
 private:
   void handle_read();
@@ -56,4 +58,12 @@ private:
   Timestamp poll_return_time_;
   std::mutex mutex_;
 };
+
+class IgnoreSigPipe {
+public:
+  IgnoreSigPipe() {
+    ::signal(SIGPIPE, SIG_IGN);
+  }
+};
+
 }

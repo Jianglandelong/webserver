@@ -78,10 +78,15 @@ void TcpConnection::send(const std::string &message) {
 
 void TcpConnection::send_in_loop(const std::string &message) {
   loop_->assert_in_loop_thread();
-  ssize_t num;
+  ssize_t num = 0;
   if (!channel_->is_writing() && output_buffer_.readableBytes() == 0) {
     num = ::write(socket_->fd(), message.c_str(), message.size());
-    if (num < 0 && num > message.size()) {
+    if (num == message.size() && write_complete_cb_) {
+      if (!loop_->is_calling_pending_functions()) {
+        loop_->queue_in_loop([conn = shared_from_this()]() { conn->write_complete_cb_(conn); });
+      }
+    }
+    if (num < 0 || num > message.size()) {
       if (errno != EWOULDBLOCK) {
         LOG_SYSERR << "TcpConnection::send_in_loop() error\n";
       }
@@ -101,15 +106,18 @@ void TcpConnection::handle_write() {
   loop_->assert_in_loop_thread();
   if (channel_->is_writing()) {
     auto num = ::write(channel_->fd(), output_buffer_.peek(), output_buffer_.readableBytes());
-    if (num >= 0) {
+    if (num > 0) {
       output_buffer_.retrieve(num);
       if (output_buffer_.readableBytes() == 0) {
         channel_->disable_writing();
+        if (write_complete_cb_) {
+          loop_->queue_in_loop([conn = shared_from_this()]() { conn->write_complete_cb_(conn); });
+        }
         if (state_ == State::disconnecting) {
           shutdown_in_loop();
         }
       } else {
-        LOG_TRACE << "more data to be sent\n";
+        LOG_TRACE << "More data to be sent\n";
       }
     } else {
       LOG_SYSERR << "TcpConnection::handle_write() error\n";
@@ -117,6 +125,10 @@ void TcpConnection::handle_write() {
   } else {
     LOG_TRACE << "Connection is down, no more writing\n";
   }
+}
+  
+void TcpConnection::set_tcp_no_delay(bool on) {
+  socket_->set_no_delay(on);
 }
   
 }

@@ -11,6 +11,7 @@ namespace webserver
 
 __thread EventLoop* t_loop_in_this_thread = nullptr;
 const int timeout = 10000;
+IgnoreSigPipe init_obj;
 
 static int createEventfd()
 {
