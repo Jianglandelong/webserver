@@ -4,6 +4,7 @@
 #include "Callbacks.h"
 #include "Channel.h"
 #include "EventLoop.h"
+#include "EventLoopThreadPool.h"
 #include "Socket.h"
 
 #include <memory>

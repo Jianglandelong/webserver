@@ -41,7 +41,7 @@ void Channel::handle_event(Timestamp receive_time) {
 }
 
 void Channel::enable_reading() {
-  events_ = read_events_;
+  events_ |= read_events_;
   update();
 }
 

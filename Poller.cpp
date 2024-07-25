@@ -20,8 +20,7 @@ Timestamp Poller::poll(std::vector<Channel*> &active_channels, int timeout) {
     LOG << num_revents << " events happen\n";
     fill_active_channels(num_revents, active_channels);
   } else if (num_revents == 0) {
-    // LOG_TRACE << "nothing happens";
-    LOG << "nothing happens\n";
+    // LOG_TRACE << "nothing happens\n";
   } else {
     // LOG_SYSERR << "Poller:poll()";
     LOG << "Poller:poll()\n";
