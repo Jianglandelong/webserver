@@ -53,7 +53,7 @@ void TcpConnection::handle_close() {
 
 void TcpConnection::handle_error() {
   int err = Socket::get_socket_error(channel_->fd());
-  LOG_ERROR << "TcpConnection::handleError [" << name_ << "] - SO_ERROR = " << err << " " << std::strerror(err);
+  LOG_ERROR << "TcpConnection::handleError [" << name_ << "] - SO_ERROR = " << err << " " << std::strerror(err) << std::endl;
 }
 
 void TcpConnection::shutdown() {

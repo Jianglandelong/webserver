@@ -32,10 +32,18 @@ Socket::~Socket() {
   close(socket_);
 }
 
+int Socket::create_socket() {
+  auto fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) {
+    LOG_SYSFATAL << "Socket::create_socket() error\n";
+  }
+  return fd;
+}
+
 int Socket::create_non_blocking_socket() {
   auto fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
   if (fd < 0) {
-    LOG_SYSFATAL << "create_non_blocking_socket\n";
+    LOG_SYSFATAL << "Socket::create_non_blocking_socket() error\n";
   }
   return fd;
 }
@@ -89,6 +97,10 @@ int Socket::accept(InetAddress *peer_addr) {
   return connfd;
 }
 
+int Socket::connect(int sockfd, InetAddress &server_addr) {
+  return ::connect(sockfd, server_addr.get_sockaddr(), InetAddress::socklen());
+}
+
 void Socket::set_reuse_addr(bool flag) {
   int optval = flag ? 1 : 0;
   setsockopt(fd(), SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
@@ -103,6 +115,44 @@ void Socket::shutdown_write() {
 void Socket::set_no_delay(bool on) {
   int optval = on ? 1 : 0;
   ::setsockopt(fd(), IPPROTO_TCP, TCP_NODELAY, &optval, sizeof (optval));
+}
+
+bool Socket::is_self_connect(int sockfd) {
+  struct sockaddr_in localaddr = get_local_addr(sockfd);
+  struct sockaddr_in peeraddr = get_peer_addr(sockfd);
+  return localaddr.sin_port == peeraddr.sin_port && localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
+}
+
+sockaddr_in Socket::get_local_addr(int sockfd)
+{
+  struct sockaddr_in localaddr;
+  bzero(&localaddr, sizeof localaddr);
+  socklen_t addrlen = sizeof(localaddr);
+  if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&localaddr), &addrlen) < 0)
+  {
+    LOG_SYSERR << "sockets::getLocalAddr";
+  }
+  return localaddr;
+}
+
+sockaddr_in Socket::get_peer_addr(int sockfd)
+{
+  struct sockaddr_in peeraddr;
+  bzero(&peeraddr, sizeof peeraddr);
+  socklen_t addrlen = sizeof(peeraddr);
+  if (::getpeername(sockfd, reinterpret_cast<sockaddr*>(&peeraddr), &addrlen) < 0)
+  {
+    LOG_SYSERR << "sockets::getPeerAddr";
+  }
+  return peeraddr;
+}
+
+void Socket::set_non_block(int sockfd) {
+  int flags = fcntl(sockfd, F_GETFL, 0);
+  flags |= O_NONBLOCK;
+  if (fcntl(sockfd, F_SETFL, flags) == -1) {
+    LOG_ERROR << "Socket::set_non_block() error\n";
+  }
 }
 
 }

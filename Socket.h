@@ -3,6 +3,7 @@
 #include "Logging.h"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sstream>
@@ -31,6 +32,7 @@ class Socket {
 public:
   Socket(int socket);
   ~Socket();
+  static int create_socket();
   static int create_non_blocking_socket();
   int fd() { return socket_; }
   void bind(InetAddress *addr);
@@ -39,6 +41,9 @@ public:
   void set_reuse_addr(bool flag);
   void shutdown_write();
   void set_no_delay(bool on);
+
+  static int connect(int sockfd, InetAddress &server_addr);
+  static void set_non_block(int sockfd);
   
   static int get_socket_error(int sockfd) {
     int optval;
@@ -49,6 +54,10 @@ public:
       return optval;
     }
   }
+
+  static bool is_self_connect(int sockfd);
+  static sockaddr_in get_local_addr(int sockfd);
+  static sockaddr_in get_peer_addr(int sockfd);
 
 private:
   int socket_;

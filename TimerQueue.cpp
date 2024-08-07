@@ -60,6 +60,7 @@ TimerQueue::~TimerQueue() {
 
 void TimerQueue::handle_read() {
   loop_->assert_in_loop_thread();
+  is_calling_expired_timers_ = true;
   auto now = Timestamp::now();
   read_timerfd(timer_queue_fd_, now);
   get_expired(now);
@@ -67,6 +68,7 @@ void TimerQueue::handle_read() {
     timer->callback();
   }
   reset_expired(now);
+  is_calling_expired_timers_ = false;
 }
 
 // Expired timers will be removed from timer_list_
@@ -82,7 +84,7 @@ void TimerQueue::get_expired(Timestamp now) {
 void TimerQueue::reset_expired(Timestamp now) {
   std::vector<std::shared_ptr<Timer>> tmp_timer_list;
   for (auto &timer : expired_) {
-    if (timer->is_repeat()) {
+    if (timer->is_repeat() && wait_cancel_.find(timer) == wait_cancel_.end()) {
       timer->restart(now);
       tmp_timer_list.push_back(timer);
     }
@@ -91,6 +93,7 @@ void TimerQueue::reset_expired(Timestamp now) {
     insert(timer);
   }
   expired_.clear();
+  wait_cancel_.clear();
   if (!timer_list_.empty()) {
     auto next_expire = timer_list_.begin()->second->expiration();
     if (next_expire.valid()) {
@@ -110,9 +113,10 @@ bool TimerQueue::insert(std::shared_ptr<Timer> timer) {
   return earliest_changed;
 }
 
-void TimerQueue::add_timer(Timestamp expiration, TimerCallback cb, double interval) {
+std::shared_ptr<Timer> TimerQueue::add_timer(Timestamp expiration, TimerCallback cb, double interval) {
   auto timer = std::make_shared<Timer>(expiration, cb, interval);
   loop_->run_in_loop([this, timer]() { this->add_timer_in_loop(timer); });
+  return timer;
 }
 
 void TimerQueue::add_timer_in_loop(std::shared_ptr<Timer> timer) {
@@ -137,6 +141,22 @@ void TimerQueue::update_timer_queue_fd()
   {
     // LOG_SYSERR << "timerfd_settime()";
     std::cerr << "timerfd_settime() error: " << std::strerror(errno) << std::endl;
+  }
+}
+
+void TimerQueue::cancel(std::shared_ptr<Timer> &&timer) {
+  loop_->run_in_loop([this, timer = std::move(timer)]() mutable { this->cancel_in_loop(std::move(timer)); });
+}
+
+void TimerQueue::cancel_in_loop(std::shared_ptr<Timer> &&timer) {
+  loop_->assert_in_loop_thread();
+  if (!is_calling_expired_timers_) {
+    auto iter = timer_list_.find(std::make_pair(timer->expiration(), timer));
+    if (iter != timer_list_.end()) {
+      timer_list_.erase(iter);
+    }
+  } else {
+    wait_cancel_.emplace(timer);
   }
 }
 

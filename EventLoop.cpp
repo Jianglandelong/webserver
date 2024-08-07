@@ -87,18 +87,18 @@ void EventLoop::update_channel(Channel* channel) {
   poller_->update_channel(channel);
 }
 
-void EventLoop::run_at(const Timestamp &time, const Timer::TimerCallback &cb) {
-  timer_queue_->add_timer(time, cb);
+std::shared_ptr<Timer> EventLoop::run_at(const Timestamp &time, const Timer::TimerCallback &cb) {
+  return timer_queue_->add_timer(time, cb);
 }
 
-void EventLoop::run_after(double delay, const Timer::TimerCallback &cb) {
+std::shared_ptr<Timer> EventLoop::run_after(double delay, const Timer::TimerCallback &cb) {
   Timestamp time(addTime(Timestamp::now(), delay));
-  run_at(time, cb);
+  return run_at(time, cb);
 }
 
-void EventLoop::run_every_interval(double interval, const Timer::TimerCallback &cb) {
+std::shared_ptr<Timer> EventLoop::run_every_interval(double interval, const Timer::TimerCallback &cb) {
   Timestamp time(addTime(Timestamp::now(), interval));
-  timer_queue_->add_timer(time, cb, interval);
+  return timer_queue_->add_timer(time, cb, interval);
 }
 
 void EventLoop::run_in_loop(const std::function<void()> &cb) {
@@ -151,6 +151,10 @@ void EventLoop::run_pending_functions() {
     functor();
   }
   is_calling_pending_function_ = false;
+}
+
+void EventLoop::cancel_timer(std::shared_ptr<Timer> &&timer) {
+  timer_queue_->cancel(std::move(timer));
 }
 
 }

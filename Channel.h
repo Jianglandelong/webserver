@@ -39,6 +39,7 @@ public:
   void enable_writing();
   void disable_events();
   void disable_writing();
+  void disable_all();
 
   EventLoop* eventloop() { return loop_; }
 
@@ -52,8 +53,8 @@ private:
   static const int write_events_{POLLOUT};
 
   int fd_;
-  int events_;
-  int revents_;
+  int events_{0};
+  int revents_{0};
   int index_in_pollfds_{-1};
   EventLoop* loop_;
   bool handling_event_{false};

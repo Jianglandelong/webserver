@@ -31,13 +31,14 @@ public:
   bool is_in_loop_thread();
   void assert_in_loop_thread();
   void update_channel(Channel* channel);
-  void run_at(const Timestamp &time, const Timer::TimerCallback &cb);
-  void run_after(double delay, const Timer::TimerCallback &cb);
-  void run_every_interval(double interval, const Timer::TimerCallback &cb);
+  std::shared_ptr<Timer> run_at(const Timestamp &time, const Timer::TimerCallback &cb);
+  std::shared_ptr<Timer> run_after(double delay, const Timer::TimerCallback &cb);
+  std::shared_ptr<Timer> run_every_interval(double interval, const Timer::TimerCallback &cb);
   void run_in_loop(const std::function<void()> &cb);
   void queue_in_loop(const std::function<void()> &cb);
   void remove_channel(Channel *channel);
   bool is_calling_pending_functions() { return is_calling_pending_function_; }
+  void cancel_timer(std::shared_ptr<Timer> &&timer);
 
 private:
   void handle_read();

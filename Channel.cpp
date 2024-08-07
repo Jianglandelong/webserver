@@ -67,5 +67,10 @@ void Channel::disable_writing() {
   events_ &= ~write_events_;
   update();
 }
+
+void Channel::disable_all() {
+  events_ = none_events_;
+  update();
+}
   
 }
