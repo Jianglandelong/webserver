@@ -15,7 +15,7 @@
 namespace webserver
 {
 class Channel;
-class Poller;
+class EPoller;
 class TimerQueue;
 
 class EventLoop {
@@ -54,7 +54,8 @@ private:
   std::shared_ptr<Channel> wakeup_channel_;
   std::vector<Channel*> active_channels_;
   std::vector<std::function<void()>> function_list_;
-  std::unique_ptr<Poller> poller_;
+  // std::unique_ptr<Poller> poller_;
+  std::unique_ptr<EPoller> poller_;
   std::unique_ptr<TimerQueue> timer_queue_;
   Timestamp poll_return_time_;
   std::mutex mutex_;

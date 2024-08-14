@@ -31,7 +31,7 @@ EventLoop::EventLoop()
     is_calling_pending_function_(false),
     thread_id_(CurrentThread::tid()), 
     wakeup_fd_(createEventfd()),
-    poller_(std::make_unique<Poller>(this)), 
+    poller_(std::make_unique<EPoller>(this)), 
     timer_queue_(std::make_unique<TimerQueue>(this))
 {
   if (t_loop_in_this_thread != nullptr) {
