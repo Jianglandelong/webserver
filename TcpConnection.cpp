@@ -3,10 +3,10 @@
 namespace webserver
 {
 
-TcpConnection::TcpConnection(EventLoop *loop, int connfd, const std::string &name, const InetAddress &server_addr, 
+TcpConnection::TcpConnection(EventLoop *loop, int connfd, const std::string &name, const InetAddress &local_addr, 
   const InetAddress &peer_addr) :
   loop_(loop), socket_(std::make_unique<Socket>(connfd)), name_(name),
-  channel_(std::make_unique<Channel>(loop, connfd)), server_addr_(server_addr), peer_addr_(peer_addr)
+  channel_(std::make_unique<Channel>(loop, connfd)), local_addr_(local_addr), peer_addr_(peer_addr)
 {
   channel_->set_read_callback([this](Timestamp time) {this->handle_read(time); });
   channel_->set_write_callback([this]() { this->handle_write(); });

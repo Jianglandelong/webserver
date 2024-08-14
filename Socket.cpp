@@ -29,7 +29,7 @@ std::string InetAddress::to_string() const {
 Socket::Socket(int socket) : socket_(socket) {}
   
 Socket::~Socket() {
-  close(socket_);
+  ::close(socket_);
 }
 
 int Socket::create_socket() {

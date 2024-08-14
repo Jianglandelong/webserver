@@ -55,7 +55,7 @@ TimerQueue::TimerQueue(EventLoop *loop)
 }
 
 TimerQueue::~TimerQueue() {
-  close(timer_queue_fd_);
+  ::close(timer_queue_fd_);
 }
 
 void TimerQueue::handle_read() {
