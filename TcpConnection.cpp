@@ -87,8 +87,9 @@ void TcpConnection::send_in_loop(const std::string &message) {
       }
     }
     if (num < 0 || num > message.size()) {
+      num = 0;
       if (errno != EWOULDBLOCK) {
-        LOG_SYSERR << "TcpConnection::send_in_loop() error\n";
+        LOG_SYSERR << "TcpConnection::send_in_loop() error " << strerror(errno) << std::endl;
       }
     }
   }
