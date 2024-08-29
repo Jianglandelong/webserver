@@ -160,8 +160,8 @@ class Buffer
 
  private:
   std::vector<char> buffer_;
-  size_t readerIndex_;
-  size_t writerIndex_;
+  size_t readerIndex_;  // Buffer输出的起始位置
+  size_t writerIndex_;  // 输入Buffer的起始位置
 };
   
 }

@@ -30,12 +30,12 @@ public:
   void shutdown();
   void set_tcp_no_delay(bool on);
 
-private:
+protected:
   enum State {connecting, connected, disconnecting, disconnected};
-  void handle_read(Timestamp receive_time);
-  void handle_close();
-  void handle_error();
-  void handle_write();
+  virtual void handle_read(Timestamp receive_time);
+  virtual void handle_close();
+  virtual void handle_error();
+  virtual void handle_write();
   void send_in_loop(const std::string &message);
   void shutdown_in_loop();
 

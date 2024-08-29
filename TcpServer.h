@@ -17,7 +17,7 @@ public:
   TcpServer(EventLoop* loop, const InetAddress &addr);
   // start() is thread safe, while Acceptor::listen() must be called in loop thread
   void start();
-  void new_connection_callback(int connfd, const InetAddress &peer_addr);
+  virtual void new_connection_callback(int connfd, const InetAddress &peer_addr);
   void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; }
   void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
   void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
@@ -28,7 +28,7 @@ public:
    */
   void set_thread_num(int num_threads);
 
-private:
+protected:
   void remove_connection(const std::shared_ptr<TcpConnection> &connection);
   void remove_connection_in_loop(const std::shared_ptr<TcpConnection> &connection);
 
