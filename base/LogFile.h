@@ -1,15 +1,12 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
 #pragma once
 #include <memory>
+#include <mutex>
 #include <string>
 #include "FileUtil.h"
-#include "MutexLock.h"
-#include "noncopyable.h"
 
 
 // TODO 提供自动归档功能
-class LogFile : noncopyable {
+class LogFile {
  public:
   // 每被append flushEveryN次，flush一下，会往文件写，只不过，文件也是带缓冲区的
   LogFile(const std::string& basename, int flushEveryN = 1024);
@@ -26,6 +23,6 @@ class LogFile : noncopyable {
   const int flushEveryN_;
 
   int count_;
-  std::unique_ptr<MutexLock> mutex_;
+  std::mutex mutex_;
   std::unique_ptr<AppendFile> file_;
 };

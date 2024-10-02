@@ -1,4 +1,4 @@
-#include "Logging.h"
+#include "Logger.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Poller.h"
@@ -114,7 +114,7 @@ Timestamp EPoller::poll(std::vector<Channel*> &active_channels, int timeout) {
     // LOG_TRACE << "nothing happens\n";
   } else {
     // LOG_SYSERR << "Poller:poll()";
-    LOG << "EPoller:poll() " << strerror(errno) << std::endl;
+    LOG << "EPoller:poll() " << strerror(errno) << "\n";
   }
   return now;
 }

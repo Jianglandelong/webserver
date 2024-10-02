@@ -1,6 +1,6 @@
 #include <sys/eventfd.h>
 
-#include "Logging.h"
+#include "Logger.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Poller.h"
@@ -19,7 +19,7 @@ static int createEventfd()
   if (evtfd < 0)
   {
     // LOG_SYSERR << "Failed in eventfd";
-    std::cerr << "createEventfd() error: " << std::strerror(errno) << std::endl;
+    std::cerr << "createEventfd() error: " << std::strerror(errno) << "\n";
     abort();
   }
   return evtfd;
@@ -36,6 +36,7 @@ EventLoop::EventLoop()
 {
   if (t_loop_in_this_thread != nullptr) {
     LOG << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_ << "\n";
+    // LOG << "Another EventLoop " << " exists in this thread " << "\n";
   } else {
     t_loop_in_this_thread = this;
   }
@@ -71,6 +72,7 @@ void EventLoop::loop() {
   }
   // LOG_TRACE << "EventLoop " << this << " stop looping";
   LOG << "EventLoop " << this << " stop looping\n";
+  // LOG << "EventLoop " << " stop looping\n";
   is_looping_ = false;
 }
 
@@ -129,7 +131,7 @@ void EventLoop::handle_read() {
   uint64_t one;
   auto num = ::read(wakeup_fd_, &one, sizeof(one));
   if (num != sizeof(one)) {
-    LOG_ERROR << "EventLoop::handle_read() read " << num << " bytes instead of 8" << std::endl;
+    LOG_ERROR << "EventLoop::handle_read() read " << num << " bytes instead of 8" << "\n";
   }
 }
 
@@ -137,7 +139,7 @@ void EventLoop::wakeup() {
   uint64_t one;
   auto num = ::write(wakeup_fd_, &one, sizeof(one));
   if (num != sizeof(one)) {
-    LOG_ERROR << "EventLoop::wakeup() write " << num << " bytes instead of 8" << std::endl;
+    LOG_ERROR << "EventLoop::wakeup() write " << num << " bytes instead of 8" << "\n";
   }
 }
 

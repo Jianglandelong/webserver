@@ -1,17 +1,14 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
 #pragma once
 #include <assert.h>
 #include <string.h>
 #include <string>
-#include "noncopyable.h"
 
 class AsyncLogging;
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
 
 template <int SIZE>
-class FixedBuffer : noncopyable {
+class FixedBuffer {
  public:
   FixedBuffer() : cur_(data_) {}
 
@@ -41,7 +38,7 @@ class FixedBuffer : noncopyable {
   char* cur_;
 };
 
-class LogStream : noncopyable {
+class LogStream {
  public:
   typedef FixedBuffer<kSmallBuffer> Buffer;
 

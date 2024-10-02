@@ -1,6 +1,6 @@
 #pragma once
 
-#include "base/CurrentThread.h"
+#include "CurrentThread.h"
 #include "Timer.h"
 
 #include <cassert>

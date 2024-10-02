@@ -8,11 +8,13 @@ TcpClient::TcpClient(EventLoop *loop, const InetAddress &server_addr)
     connector_(new Connector(loop, server_addr))
 {
   connector_->set_new_connection_callback([this](int sockfd) { this->new_connection_callback(sockfd); });
-  LOG_INFO << "TcpClient[" << this << "] - connector " << connector_.get() << std::endl;
+  LOG_INFO << "TcpClient[" << this << "] - connector " << connector_.get() << "\n";
+  // LOG_INFO << "TcpClient[" << "] - connector " << "\n";
 }
 
 TcpClient::~TcpClient() {
-  LOG_INFO << "~TcpClient[" << this << "] - connector " << connector_.get() << std::endl;
+  LOG_INFO << "~TcpClient[" << this << "] - connector " << connector_.get() << "\n";
+  // LOG_INFO << "~TcpClient[" << "] - connector " << "\n";
   std::shared_ptr<TcpConnection> tmp_conn;
   mutex_.lock();
   tmp_conn = tcp_connection_;
@@ -23,7 +25,7 @@ TcpClient::~TcpClient() {
 }
 
 void TcpClient::connect() {
-  LOG_INFO << "TcpClient[" << this << "] connecting to " << connector_->server_addr().to_string() << std::endl;
+  LOG_INFO << "TcpClient[" << this << "] connecting to " << connector_->server_addr().to_string() << "\n";
   connect_ = true;
   connector_->start();
 }
@@ -69,7 +71,7 @@ void TcpClient::remove_connection(const std::shared_ptr<TcpConnection> &connecti
   mutex_.unlock();
   loop_->queue_in_loop([connection]() { connection->destroy_connection(); });
   if (retry_ && connect_) {
-    LOG_INFO << "TcpClient[" << this << "] - reconnecting to " << connector_->server_addr().to_string() << std::endl;
+    LOG_INFO << "TcpClient[" << this << "] - reconnecting to " << connector_->server_addr().to_string() << "\n";
     connector_->restart();
   }
 }

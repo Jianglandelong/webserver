@@ -48,7 +48,7 @@ private:
   int epfd_;
   std::vector<epoll_event> epoll_events_;
   std::unordered_map<int, Channel*> channel_map_;
-  static const int init_epoll_events_size_ = 64;
+  static const int init_epoll_events_size_ = 10000;
 };
     
 }

@@ -27,7 +27,7 @@ void TcpServer::new_connection_callback(int connfd, const InetAddress &peer_addr
   std::ostringstream name;
   name << addr_.to_string() << "#" << next_connection_id_;
   next_connection_id_++;
-  LOG_INFO << "TcpServer new connection " << name.str() << " from " << peer_addr.to_string() << std::endl;
+  LOG_INFO << "TcpServer new connection " << name.str() << " from " << peer_addr.to_string() << "\n";
   // Initialize TcpConnection
   auto new_loop = thread_pool_->get_next_loop();
   auto connection = std::make_shared<TcpConnection>(new_loop, connfd, name.str(), addr_, peer_addr);
@@ -45,7 +45,7 @@ void TcpServer::remove_connection(const std::shared_ptr<TcpConnection> &connecti
 
 void TcpServer::remove_connection_in_loop(const std::shared_ptr<TcpConnection> &connection) {
   loop_->assert_in_loop_thread();
-  LOG_INFO << "TcpServer::removeConnection: " << connection->name() << std::endl;
+  LOG_INFO << "TcpServer::removeConnection: " << connection->name() << "\n";
   connection_map_.erase(connection->name());
   auto connection_loop = connection->get_loop();
   connection_loop->queue_in_loop([connection]() { connection->destroy_connection(); });

@@ -62,12 +62,12 @@ void Connector::connect() {
     case EBADF:
     case EFAULT:
     case ENOTSOCK:
-      LOG_SYSERR << "connect error in Connector::startInLoop " << strerror(saved_errno) << std::endl;
+      LOG_SYSERR << "connect error in Connector::startInLoop " << strerror(saved_errno) << "\n";
       ::close(sockfd);
       break;
 
     default:
-      LOG_SYSERR << "Unexpected error in Connector::startInLoop " << strerror(saved_errno) << std::endl;
+      LOG_SYSERR << "Unexpected error in Connector::startInLoop " << strerror(saved_errno) << "\n";
       ::close(sockfd);
       // connectErrorCallback_();
       break;
@@ -83,17 +83,17 @@ void Connector::init_connection(int sockfd) {
 }
 
 void Connector::handle_write() {
-  LOG_TRACE << "Connector::handleWrite " << state_ << std::endl;
+  LOG_TRACE << "Connector::handleWrite " << state_ << "\n";
 
   if (state_ == State::Connecting) {
     int sockfd = remove_and_reset_channel();
     int err = Socket::get_socket_error(sockfd);
     if (err) {
       // LOG_WARN << "Connector::handleWrite - SO_ERROR = " << err << " " << strerror_tl(err);
-      LOG_WARN << "Connector::handle_write error" << strerror(err) << std::endl;
+      LOG_WARN << "Connector::handle_write error" << strerror(err) << "\n";
       retry(sockfd);
     } else if (Socket::is_self_connect(sockfd)) {
-      LOG_WARN << "Connector::handleWrite - Self connect" << std::endl;
+      LOG_WARN << "Connector::handleWrite - Self connect" << "\n";
       retry(sockfd);
     } else {
       state_ = State::Connected;
@@ -115,7 +115,7 @@ void Connector::handle_error() {
 
   int sockfd = remove_and_reset_channel();
   int err = Socket::get_socket_error(sockfd);
-  LOG_TRACE << "SO_ERROR = " << strerror(err) << std::endl;
+  LOG_TRACE << "SO_ERROR = " << strerror(err) << "\n";
   retry(sockfd);
 }
 

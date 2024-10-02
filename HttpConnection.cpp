@@ -114,9 +114,12 @@ void HttpConnection::handle_read(Timestamp receive_time) {
   auto n = input_buffer_.read_fd(channel_->fd(), &tmp_errno);
   if (n > 0) {
     auto read_flag = process_input();
+    if (read_flag == HttpCode::No_request) {
+      return;
+    }
     auto write_flag = prepare_output(read_flag);
     if (!write_flag) {
-      LOG_INFO << "prepare_output() fail" << std::endl;
+      LOG_INFO << "prepare_output() fail" << "\n";
       handle_close();
     }
     channel_->enable_writing();
@@ -139,7 +142,7 @@ auto HttpConnection::process_input() -> HttpConnection::HttpCode {
   while ((text = input_buffer_.get_next_line()).has_value() || 
     (check_state_ == CheckState::Check_content && !content_parsed))
   {
-    LOG_INFO << text.value_or("") << std::endl;
+    LOG_INFO << text.value_or("") << "\n";
     switch (check_state_) {
       case CheckState::Check_request_line: {
         if (parse_request_line(text.value()) == HttpCode::Bad_request) {
@@ -233,16 +236,19 @@ auto HttpConnection::parse_headers(std::string &text) -> HttpConnection::HttpCod
 auto HttpConnection::parse_content() -> HttpConnection::HttpCode {
   if (input_buffer_.readable_bytes() >= content_len_) {
     text_ = input_buffer_.get_remain();
-    LOG_INFO << text_ << std::endl;
+    LOG_INFO << text_ << "\n";
     return HttpCode::Get_request;
   }
   return HttpCode::No_request;
 }
 
 auto HttpConnection::do_request() -> HttpConnection::HttpCode {
+  if (url_ == "/") {
+    return HttpCode::File_request;
+  }
   file_name_ = "asset/hello.html";
   if (stat(file_name_.c_str(), &file_stat_) < 0) {
-    LOG_INFO << "stat file error: " << strerror(errno) << std::endl;
+    LOG_INFO << "stat file error: " << strerror(errno) << "\n";
     return HttpCode::No_resource;
   }
   if (!(file_stat_.st_mode & S_IROTH)) {
@@ -341,7 +347,7 @@ void HttpConnection::handle_write() {
       if (errno != EAGAIN && errno != EWOULDBLOCK) {
         unmap();
       }
-      LOG_SYSERR << "TcpConnection::handle_write() error " << strerror(errno) << std::endl;
+      LOG_SYSERR << "TcpConnection::handle_write() error " << strerror(errno) << "\n";
     }
   } else {
     LOG_TRACE << "Connection is down, no more writing\n";

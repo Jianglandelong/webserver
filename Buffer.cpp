@@ -1,6 +1,6 @@
 #include "Buffer.h"
 #include "Socket.h"
-#include "Logging.h"
+#include "Logger.h"
 
 #include <errno.h>
 #include <memory.h>

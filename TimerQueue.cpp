@@ -1,6 +1,6 @@
 #include <sys/timerfd.h>
 
-#include "Logging.h"
+#include "Logger.h"
 #include "TimerQueue.h"
 
 namespace webserver
@@ -140,7 +140,7 @@ void TimerQueue::update_timer_queue_fd()
   if (ret)
   {
     // LOG_SYSERR << "timerfd_settime()";
-    std::cerr << "timerfd_settime() error: " << std::strerror(errno) << std::endl;
+    std::cerr << "timerfd_settime() error: " << std::strerror(errno) << "\n";
   }
 }
 

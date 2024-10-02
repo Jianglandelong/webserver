@@ -10,7 +10,7 @@ void HttpServer::new_connection_callback(int connfd, const InetAddress &peer_add
   std::ostringstream name;
   name << addr_.to_string() << "#" << next_connection_id_;
   next_connection_id_++;
-  LOG_INFO << "HttpServer new connection " << name.str() << " from " << peer_addr.to_string() << std::endl;
+  LOG_INFO << "HttpServer new connection " << name.str() << " from " << peer_addr.to_string() << "\n";
   // Initialize TcpConnection
   auto new_loop = thread_pool_->get_next_loop();
   auto connection = std::make_shared<HttpConnection>(new_loop, connfd, name.str(), addr_, peer_addr);

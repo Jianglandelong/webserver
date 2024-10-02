@@ -46,14 +46,14 @@ void TcpConnection::handle_read(Timestamp receive_time) {
 
 void TcpConnection::handle_close() {
   loop_->assert_in_loop_thread();
-  LOG_TRACE << "TcpConnection::handle_close state = " << state_ << std::endl;
+  LOG_TRACE << "TcpConnection::handle_close state = " << state_ << "\n";
   channel_->disable_events();
   close_cb_(shared_from_this());
 }
 
 void TcpConnection::handle_error() {
   int err = Socket::get_socket_error(channel_->fd());
-  LOG_ERROR << "TcpConnection::handleError [" << name_ << "] - SO_ERROR = " << err << " " << std::strerror(err) << std::endl;
+  LOG_ERROR << "TcpConnection::handleError [" << name_ << "] - SO_ERROR = " << err << " " << std::strerror(err) << "\n";
 }
 
 void TcpConnection::shutdown() {
@@ -89,7 +89,7 @@ void TcpConnection::send_in_loop(const std::string &message) {
     if (num < 0 || num > message.size()) {
       num = 0;
       if (errno != EWOULDBLOCK) {
-        LOG_SYSERR << "TcpConnection::send_in_loop() error " << strerror(errno) << std::endl;
+        LOG_SYSERR << "TcpConnection::send_in_loop() error " << strerror(errno) << "\n";
       }
     }
   }

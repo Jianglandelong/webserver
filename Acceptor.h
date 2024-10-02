@@ -3,7 +3,7 @@
 #include "Callbacks.h"
 #include "Channel.h"
 #include "EventLoop.h"
-#include "Logging.h"
+#include "Logger.h"
 #include "Socket.h"
 
 namespace webserver

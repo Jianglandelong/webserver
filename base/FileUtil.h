@@ -1,11 +1,7 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
 #pragma once
 #include <string>
-#include "noncopyable.h"
 
-
-class AppendFile : noncopyable {
+class AppendFile {
  public:
   explicit AppendFile(std::string filename);
   ~AppendFile();

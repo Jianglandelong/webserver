@@ -2,7 +2,7 @@
 
 #include "Acceptor.h"
 #include "Callbacks.h"
-#include "Logging.h"
+#include "Logger.h"
 #include "TcpConnection.h"
 
 #include <unordered_map>

@@ -1,17 +1,13 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
 #pragma once
 #include <functional>
 #include <string>
 #include <vector>
-#include "CountDownLatch.h"
+#include <condition_variable>
+#include <optional>
+#include <thread>
 #include "LogStream.h"
-#include "MutexLock.h"
-#include "Thread.h"
-#include "noncopyable.h"
 
-
-class AsyncLogging : noncopyable {
+class AsyncLogging {
  public:
   AsyncLogging(const std::string basename, int flushInterval = 2);
   ~AsyncLogging() {
@@ -21,14 +17,18 @@ class AsyncLogging : noncopyable {
 
   void start() {
     running_ = true;
-    thread_.start();
-    latch_.wait();
+    thread_.emplace(&AsyncLogging::threadFunc, this);
+    std::unique_lock<std::mutex> lock(mutex_);
+    thread_cond_.wait(lock);  // 等待线程启动后再返回 start
+    // latch_.wait();
   }
 
   void stop() {
     running_ = false;
-    cond_.notify();
-    thread_.join();
+    cond_.notify_all();
+    if (thread_.has_value()) {
+      thread_.value().join();
+    }
   }
 
  private:
@@ -39,11 +39,15 @@ class AsyncLogging : noncopyable {
   const int flushInterval_;
   bool running_;
   std::string basename_;
-  Thread thread_;
-  MutexLock mutex_;
-  Condition cond_;
+  // Thread thread_;
+  std::optional<std::thread> thread_;
+  // MutexLock mutex_;
+  std::mutex mutex_;
+  // Condition cond_;
+  std::condition_variable cond_;
   BufferPtr currentBuffer_;
   BufferPtr nextBuffer_;
   BufferVector buffers_;
-  CountDownLatch latch_;
+  // CountDownLatch latch_;
+  std::condition_variable thread_cond_;
 };

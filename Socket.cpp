@@ -108,7 +108,7 @@ void Socket::set_reuse_addr(bool flag) {
 
 void Socket::shutdown_write() {
   if (::shutdown(socket_, SHUT_WR) < 0) {
-    LOG_SYSERR << "Socket::shutdown_write()" << std::endl;
+    LOG_SYSERR << "Socket::shutdown_write()" << "\n";
   }
 }
 

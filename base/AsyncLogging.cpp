@@ -1,5 +1,3 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
 #include "AsyncLogging.h"
 #include <assert.h>
 #include <stdio.h>
@@ -11,13 +9,14 @@ AsyncLogging::AsyncLogging(std::string logFileName_, int flushInterval)
     : flushInterval_(flushInterval),
       running_(false),
       basename_(logFileName_),
-      thread_(std::bind(&AsyncLogging::threadFunc, this), "Logging"),
+      thread_(std::nullopt),
       mutex_(),
-      cond_(mutex_),
+      cond_(),
       currentBuffer_(new Buffer),
       nextBuffer_(new Buffer),
-      buffers_(),
-      latch_(1) {
+      buffers_()
+      // latch_(1) 
+{
   assert(logFileName_.size() > 1);
   currentBuffer_->bzero();
   nextBuffer_->bzero();
@@ -25,7 +24,7 @@ AsyncLogging::AsyncLogging(std::string logFileName_, int flushInterval)
 }
 
 void AsyncLogging::append(const char* logline, int len) {
-  MutexLockGuard lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
   if (currentBuffer_->avail() > len)
     currentBuffer_->append(logline, len);
   else {
@@ -36,13 +35,14 @@ void AsyncLogging::append(const char* logline, int len) {
     else
       currentBuffer_.reset(new Buffer);
     currentBuffer_->append(logline, len);
-    cond_.notify();
+    cond_.notify_one();
   }
 }
 
 void AsyncLogging::threadFunc() {
   assert(running_ == true);
-  latch_.countDown();
+  // latch_.countDown();
+  thread_cond_.notify_all();
   LogFile output(basename_);
   BufferPtr newBuffer1(new Buffer);
   BufferPtr newBuffer2(new Buffer);
@@ -56,10 +56,10 @@ void AsyncLogging::threadFunc() {
     assert(buffersToWrite.empty());
 
     {
-      MutexLockGuard lock(mutex_);
+      std::unique_lock<std::mutex> lock(mutex_);
       if (buffers_.empty())  // unusual usage!
       {
-        cond_.waitForSeconds(flushInterval_);
+        cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
       }
       buffers_.push_back(currentBuffer_);
       currentBuffer_.reset();

@@ -29,7 +29,7 @@ void Acceptor::handle_read() {
 }
 
 void Acceptor::default_connection_callback(int connfd, const InetAddress &peer_addr) {
-  std::cout << "accept new connection from " << peer_addr.to_string() << std::endl;
+  std::cout << "accept new connection from " << peer_addr.to_string() << "\n";
   std::string message("close connection\n");
   ::write(connfd, message.data(), message.size());
   ::close(connfd);
